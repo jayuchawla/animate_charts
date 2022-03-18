@@ -19,8 +19,8 @@ class ScrapePage:
             # log 
             print('Unable to scrape!')
 
-    def scrape_table(self, table_id, saveas_csv=None, include_header=True):
-        table = self._soup.find("table", {"id": table_id})        
+    def scrape_table(self, table_id, saveas_csv=None, include_header=True, extract_links=False):
+        table = self._soup.find("table", {"id": table_id})
         table_data = list()
 
         # extract headers
@@ -29,7 +29,7 @@ class ScrapePage:
             for table_head_row in table_head.find_all('tr'):
                 for table_head_row_data in table_head_row.find_all('th'):
                     headers.append(table_head_row_data.get_text(strip=True))
-        
+
         if include_header:
             table_data.append(headers)
 
@@ -37,8 +37,15 @@ class ScrapePage:
         for table_body in table.find_all('tbody'):
             for table_row in table_body.find_all('tr'):
                 row_data = list()
+                anchors = list()
                 for table_row_data in table_row.find_all('td'):
                     row_data.append(table_row_data.get_text(strip=True))
+                    # extract links if available in that cell
+                    if extract_links:
+                        for link in table_row_data.find_all('a'):
+                            anchors.append(link['href'])
+                if extract_links:
+                    row_data.append(anchors)
                 table_data.append(row_data)
         
         # write to csv
@@ -58,4 +65,4 @@ class ScrapePage:
 # test stub
 if __name__ == '__main__':
     sc = ScrapePage("https://www.worldometers.info/co2-emissions/co2-emissions-by-country/")
-    print(sc.scrape_table("example2", saveas_csv='F:/work_learning/Chart Animation/data/country-co2.csv'))
+    print(sc.scrape_table("example2", saveas_csv='F:/work_learning/Chart Animation/data/country-co2.csv', extract_links=True))
