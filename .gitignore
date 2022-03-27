@@ -130,3 +130,9 @@ dmypy.json
 
 data/
 utility/data/
+
+poc/
+
+charts/scrap/
+
+media/
